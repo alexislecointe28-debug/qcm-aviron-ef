@@ -459,6 +459,7 @@ async function startMode(mode) {
   currentMode = mode;
   sessionAnswers = {};
   current = 0;
+  const now = Date.now();
 
   if (mode === 'adaptatif') {
     // Répétition espacée : dues en priorité, rappels maîtrisées, reste ensuite
