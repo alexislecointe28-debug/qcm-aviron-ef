@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#ffffff" id="themeColor">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default" id="appleStatus">
+<meta name="apple-mobile-web-app-title" content="QCM Aviron">
+<link id="manifest-link" rel="manifest">
+<title>QCM — Entraîneur Fédéral Aviron</title>
+<style>
+:root {
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --text: #0f172a;
+  --text2: #64748b;
+  --text3: #94a3b8;
+  --border: #e2e8f0;
+  --opt-bg: #f8fafc;
+  --expl-bg: #f8fafc;
+  --progress-bg: #e2e8f0;
+  --chip-border: #e2e8f0;
+  --chip-bg: #ffffff;
+  --shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+.dark {
+  --bg: #0f172a;
+  --card: #1a2744;
+  --text: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --border: #334155;
+  --opt-bg: #1e293b;
+  --expl-bg: #0f172a;
+  --progress-bg: #1e293b;
+  --chip-border: #334155;
+  --chip-bg: transparent;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+.screen { display: none; padding: 16px 14px 48px; max-width: 600px; margin: 0 auto; }
+.screen.active { display: block; }
+
+/* ── HEADER ── */
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.app-title { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 1.5px; }
+.top-actions { display: flex; gap: 8px; align-items: center; }
+.icon-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; padding: 7px 10px; font-size: 16px; cursor: pointer; line-height: 1; box-shadow: var(--shadow); }
+
+/* ── HOME ── */
+.home-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.stat-box { background: var(--card); border-radius: 16px; padding: 14px 10px; text-align: center; box-shadow: var(--shadow); }
+.stat-num { font-size: 26px; font-weight: 900; line-height: 1; }
+.stat-lbl { font-size: 10px; color: var(--text3); font-weight: 600; margin-top: 4px; letter-spacing: 0.5px; }
+.mode-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.mode-card { background: var(--card); border-radius: 18px; padding: 18px 16px; box-shadow: var(--shadow); cursor: pointer; display: flex; align-items: center; gap: 14px; border: 2px solid transparent; }
+.mode-card:active { opacity: 0.85; transform: scale(0.99); }
+.mode-icon { font-size: 28px; flex-shrink: 0; }
+.mode-info { flex: 1; }
+.mode-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.mode-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.mode-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; margin-left: auto; flex-shrink: 0; }
+.domain-section { background: var(--card); border-radius: 18px; padding: 16px; box-shadow: var(--shadow); }
+.section-title { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 1.5px; margin-bottom: 14px; }
+.domain-row { margin-bottom: 12px; }
+.domain-row:last-child { margin-bottom: 0; }
+.domain-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.domain-name { font-size: 12px; font-weight: 700; }
+.domain-pct { font-size: 11px; color: var(--text3); font-weight: 600; }
+.domain-bar { height: 6px; background: var(--progress-bg); border-radius: 3px; overflow: hidden; }
+.domain-fill { height: 6px; border-radius: 3px; transition: width 0.5s ease; }
+
+/* ── QUIZ ── */
+.quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.quiz-info { font-size: 12px; color: var(--text3); font-weight: 600; }
+.timer-box { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card); }
+.timer-box.warn { border-color: #f59e0b; color: #f59e0b; }
+.timer-box.danger { border-color: #ef4444; color: #ef4444; }
+.progress-bar { background: var(--progress-bg); border-radius: 4px; height: 5px; margin-bottom: 18px; overflow: hidden; }
+.progress-fill { height: 5px; transition: width 0.4s ease; border-radius: 4px; }
+.card { background: var(--card); border-radius: 20px; padding: 22px 18px; box-shadow: var(--shadow); }
+.badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 11px; border-radius: 20px; margin-bottom: 10px; letter-spacing: 0.5px; }
+.qnum { color: var(--text3); font-size: 11px; margin-bottom: 10px; font-weight: 600; }
+.question { font-size: 16px; font-weight: 700; line-height: 1.55; color: var(--text); margin-bottom: 18px; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option { display: flex; align-items: flex-start; text-align: left; padding: 13px 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--opt-bg); font-size: 13px; color: var(--text2); cursor: pointer; line-height: 1.4; width: 100%; gap: 10px; }
+.option:active:not(:disabled) { transform: scale(0.99); }
+.option .letter { font-size: 11px; font-weight: 700; color: var(--text3); flex-shrink: 0; padding-top: 1px; }
+.option .mark { margin-left: auto; flex-shrink: 0; font-size: 15px; }
+.option.correct { background: #f0fdf4; border-color: #22c55e; color: #15803d; }
+.dark .option.correct { background: #052e16; border-color: #22c55e; color: #6ee7b7; }
+.option.correct .letter { color: #22c55e; }
+.option.wrong { background: #fff1f2; border-color: #f43f5e; color: #be123c; }
+.dark .option.wrong { background: #450a0a; border-color: #ef4444; color: #fca5a5; }
+.option.wrong .letter { color: #f43f5e; }
+.option.disabled { color: var(--text3); border-color: var(--border); background: var(--opt-bg); opacity: 0.5; }
+.expl { margin-top: 16px; background: var(--expl-bg); border-radius: 12px; padding: 13px 14px; font-size: 13px; color: var(--text2); line-height: 1.65; border-left: 3px solid var(--border); }
+.expl-label { font-size: 10px; font-weight: 700; color: var(--text3); margin-bottom: 6px; letter-spacing: 1.5px; }
+.btn-next { margin-top: 16px; width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--text); color: var(--card); font-weight: 700; font-size: 14px; cursor: pointer; letter-spacing: 0.5px; }
+.btn-next:active { opacity: 0.85; }
+.btn-quit { margin-top: 10px; width: 100%; padding: 11px; border-radius: 12px; border: 1.5px solid var(--border); background: transparent; color: var(--text3); font-weight: 600; font-size: 13px; cursor: pointer; }
+
+/* ── RUSH countdown ── */
+.rush-timer { height: 5px; border-radius: 4px; background: var(--progress-bg); margin-bottom: 18px; overflow: hidden; }
+.rush-fill { height: 5px; border-radius: 4px; transition: width 0.1s linear; }
+
+/* ── RESULTS ── */
+.results-hero { text-align: center; margin-bottom: 20px; }
+.results-score { font-size: 72px; font-weight: 900; font-family: Georgia, serif; line-height: 1; }
+.results-sub { color: var(--text3); font-size: 14px; margin-top: 6px; }
+.results-msg { font-size: 20px; font-weight: 700; margin-top: 10px; }
+.results-domains { background: var(--card); border-radius: 18px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 14px; }
+.wrong-section { background: var(--card); border-radius: 18px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 14px; }
+.wrong-label { color: var(--text3); font-size: 10px; font-weight: 700; letter-spacing: 2px; margin-bottom: 12px; }
+.wrong-item { background: var(--opt-bg); border-radius: 12px; padding: 14px; margin-bottom: 10px; border-left: 3px solid; }
+.wrong-item:last-child { margin-bottom: 0; }
+.wdom { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+.wq { font-size: 13px; color: var(--text); margin-bottom: 6px; font-weight: 600; }
+.wans { font-size: 12px; color: #16a34a; font-weight: 600; }
+.dark .wans { color: #4ade80; }
+.wexpl { font-size: 12px; color: var(--text2); margin-top: 6px; line-height: 1.55; }
+.btn-home { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--text); color: var(--card); font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 4px; }
+.btn-again { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border); background: transparent; color: var(--text2); font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 10px; }
+
+/* ── INSTALL BANNER ── */
+#installBanner { display:none; background: var(--text); color: var(--card); padding:12px 16px; border-radius:12px; margin-bottom:14px; font-size:13px; align-items:center; gap:10px; justify-content:space-between; }
+#installBanner.show { display:flex; }
+#installBtn { background: var(--card); color: var(--text); border:none; border-radius:8px; padding:7px 14px; font-weight:700; font-size:12px; cursor:pointer; white-space:nowrap; }
+#dismissBtn { background:transparent; border:none; color: var(--text3); cursor:pointer; font-size:18px; line-height:1; padding:0 4px; }
+</style>
+</head>
+<body>
+
+<!-- ── HOME ── -->
+<div class="screen active" id="homeScreen">
+  <div class="top-bar">
+    <div class="app-title">ENTRAÎNEUR FÉDÉRAL AVIRON</div>
+    <div class="top-actions">
+      <button class="icon-btn" onclick="toggleDark()" id="darkBtn">🌙</button>
+      <button class="icon-btn" onclick="resetProgress()">🗑️</button>
+    </div>
+  </div>
+  <div id="installBanner">
+    <span>📲 Installer pour réviser hors ligne</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="installBtn">Installer</button>
+      <button id="dismissBtn">✕</button>
+    </div>
+  </div>
+  <div class="home-stats" id="homeStats"></div>
+  <div class="mode-grid">
+    <div class="mode-card" onclick="startMode('adaptatif')" style="border-color:#0ea5e9">
+      <div class="mode-icon">🎯</div>
+      <div class="mode-info">
+        <div class="mode-name">Mode Adaptatif</div>
+        <div class="mode-desc">10 questions · Cible tes lacunes</div>
+      </div>
+      <div class="mode-tag" style="background:#e0f2fe;color:#0369a1">SMART</div>
+    </div>
+    <div class="mode-card" onclick="startMode('examen')">
+      <div class="mode-icon">📋</div>
+      <div class="mode-info">
+        <div class="mode-name">Mode Examen</div>
+        <div class="mode-desc">30 questions · 30 min · Comme le vrai</div>
+      </div>
+      <div class="mode-tag" style="background:#fef3c7;color:#92400e">EXAM</div>
+    </div>
+    <div class="mode-card" onclick="startMode('rush')">
+      <div class="mode-icon">⚡</div>
+      <div class="mode-info">
+        <div class="mode-name">Mode Rush</div>
+        <div class="mode-desc">5 questions · 20s par question</div>
+      </div>
+      <div class="mode-tag" style="background:#fce7f3;color:#9d174d">RUSH</div>
+    </div>
+    <div class="mode-card" onclick="startMode('tout')">
+      <div class="mode-icon">📚</div>
+      <div class="mode-info">
+        <div class="mode-name">Toutes les questions</div>
+        <div class="mode-desc">30 questions · Sans chrono</div>
+      </div>
+      <div class="mode-tag" style="background:#f1f5f9;color:#64748b">LIBRE</div>
+    </div>
+  </div>
+  <div class="domain-section" id="domainSection"></div>
+</div>
+
+<!-- ── QUIZ ── -->
+<div class="screen" id="quizScreen">
+  <div class="top-bar">
+    <div class="quiz-info" id="quizInfo">Question 1/10</div>
+    <div id="timerDisplay"></div>
+  </div>
+  <div id="rushTimerBar" class="rush-timer" style="display:none"><div class="rush-fill" id="rushFill" style="background:#0ea5e9;width:100%"></div></div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="card" id="quizCard"></div>
+</div>
+
+<!-- ── RESULTS ── -->
+<div class="screen" id="resultsScreen">
+  <div class="top-bar">
+    <div class="app-title">RÉSULTATS</div>
+  </div>
+  <div id="resultsContent"></div>
+</div>
+
+<script>
+// ── PWA ────────────────────────────────────────────────────────────────────
+const manifest = { name:"QCM Entraîneur Fédéral Aviron", short_name:"QCM Aviron", start_url:"./", display:"standalone", background_color:"#f0f4f8", theme_color:"#ffffff", icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%230f172a'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='white'%3E🚣%3C/text%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml"},{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230f172a'/%3E%3Ctext x='256' y='350' font-size='280' text-anchor='middle' fill='white'%3E🚣%3C/text%3E%3C/svg%3E",sizes:"512x512",type:"image/svg+xml"}] };
+document.getElementById('manifest-link').href = URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}));
+const swCode=`const C='qcm-aviron-v2';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./']).catch(()=>{})));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('./'))));});`;
+if('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode],{type:'application/javascript'}))).catch(()=>{});
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').classList.add('show');});
+document.getElementById('installBtn').onclick=()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('installBanner').classList.remove('show');});}};
+document.getElementById('dismissBtn').onclick=()=>document.getElementById('installBanner').classList.remove('show');
+
+// ── DARK MODE ──────────────────────────────────────────────────────────────
+let dark = localStorage.getItem('dark')==='1';
+function applyDark() {
+  document.body.classList.toggle('dark', dark);
+  document.getElementById('darkBtn').textContent = dark ? '☀️' : '🌙';
+  document.getElementById('themeColor').content = dark ? '#0f172a' : '#ffffff';
+}
+function toggleDark() { dark=!dark; localStorage.setItem('dark', dark?'1':'0'); applyDark(); }
+applyDark();
+
+// ── DATA ───────────────────────────────────────────────────────────────────
+const COLORS = { "Entraînement":"#0ea5e9","Environnement institutionnel":"#8b5cf6","Pédagogie":"#f59e0b","Matériel":"#10b981","Technique":"#ef4444","Sécurité":"#f97316" };
+const ALL = [
+  // ── FILIÈRES ÉNERGÉTIQUES ──────────────────────────────────────────
+  {d:"Entraînement",q:"Quelle filière est majoritairement sollicitée lors d'un 2000m en compétition d'aviron ?",o:["Anaérobie alactique","Anaérobie lactique","Aérobie seule","Mixte aérobie/anaérobie lactique"],c:3,e:"Un 2000m dure ~6-7 min. La filière aérobie domine (~70-75%), mais la part anaérobie lactique est significative au départ et au sprint final — sollicitation mixte avec dominante aérobie."},
+  {d:"Entraînement",q:"Lors des 3 à 8 premières secondes d'un départ d'aviron, quelle filière est prioritairement sollicitée ?",o:["Aérobie","Anaérobie lactique","Anaérobie alactique (ATP-PC)","Aucune, le corps est en attente"],c:2,e:"La filière alactique (ATP-PC / phosphocréatine) fournit de l'énergie immédiatement, sans délai, sans oxygène et sans production de lactate. Elle couvre les efforts explosifs de 0 à 8 secondes."},
+  {d:"Entraînement",q:"Quel déchet métabolique est produit par la filière anaérobie lactique ?",o:["Dioxyde de carbone (CO₂)","Acide lactique (lactate)","Phosphocréatine","Eau (H₂O)"],c:1,e:"La glycolyse anaérobie (filière lactique) dégrade le glycogène sans oxygène et produit de l'acide lactique. L'accumulation de lactate provoque la sensation de brûlure musculaire et la baisse de performance."},
+  {d:"Entraînement",q:"Combien d'ATP la filière aérobie produit-elle approximativement par molécule de glucose ?",o:["2 à 3 ATP","7 à 8 ATP","36 à 38 ATP","100 ATP"],c:2,e:"La filière aérobie (phosphorylation oxydative) produit 36-38 ATP par molécule de glucose, contre 2-3 seulement pour la glycolyse anaérobie. C'est pourquoi elle est la filière la plus économique pour les efforts prolongés."},
+  {d:"Entraînement",q:"La resynthèse de l'ATP par la filière alactique utilise :",o:["Le glycogène musculaire","Les lipides (acides gras)","La phosphocréatine (PC)","L'oxygène atmosphérique"],c:2,e:"La filière alactique utilise la phosphocréatine (PC) pour régénérer instantanément l'ATP. Les stocks de PC sont très limités (3-8 secondes) mais se reconstituent rapidement en 2-3 minutes de récupération."},
+  {d:"Entraînement",q:"Le premier seuil ventilatoire (SV1 / seuil aérobie) correspond approximativement à :",o:["50-60% de la FCmax","65-75% de la FCmax","85-90% de la FCmax","95-100% de la FCmax"],c:1,e:"Le SV1 (seuil aérobie) se situe vers 65-75% de la FCmax. En dessous, l'effort est confortable, la ventilation régulière. Au-delà, la ventilation s'accélère pour tamponner l'augmentation du CO₂."},
+  {d:"Entraînement",q:"Lors d'un effort aérobie de faible intensité et longue durée (>30 min), quel substrat devient progressivement dominant ?",o:["Les protéines musculaires","Le glycogène hépatique exclusivement","Les lipides (acides gras)","La phosphocréatine"],c:2,e:"À faible intensité prolongée, les lipides (acides gras) deviennent le substrat dominant. Ils fournissent plus d'énergie par gramme que le glycogène, mais leur métabolisme est plus lent et nécessite plus d'oxygène."},
+  {d:"Entraînement",q:"Vrai ou faux : au début d'un effort intense, toutes les filières sont sollicitées simultanément mais dans des proportions différentes.",o:["Vrai","Faux"],c:0,e:"Vrai. Les 3 filières fonctionnent toujours en parallèle. Au départ d'un 2000m : l'alactique fournit l'énergie immédiate, le lactique monte rapidement, l'aérobie s'installe progressivement. La proportion varie selon la durée et l'intensité."},
+  {d:"Entraînement",q:"La reconstitution complète des stocks de phosphocréatine (filière alactique) prend :",o:["10 à 15 secondes","2 à 3 minutes","10 à 15 minutes","24 à 48 heures"],c:1,e:"Les stocks de phosphocréatine sont partiellement reconstitués en 30s et quasi complètement en 2-3 minutes de récupération passive. Cela justifie les temps de repos longs entre les séries de force explosive."},
+  {d:"Entraînement",q:"Un rameur effectue des séries de 6 minutes à 85% de sa FCmax. Quelle filière est principalement sollicitée ?",o:["Alactique","Anaérobie lactique exclusive","Aérobie avec contribution lactique","Lipidique exclusive"],c:2,e:"À 85% FCmax sur 6 minutes, la filière aérobie est dominante mais avec une contribution anaérobie lactique significative. C'est la zone d'entraînement au seuil anaérobie, très efficace pour améliorer la performance en aviron."},
+  {d:"Entraînement",q:"Qu'est-ce que l'EPOC (excess post-exercise oxygen consumption) ?",o:["La quantité d'O₂ consommée pendant l'effort","La surconsommation d'O₂ après l'effort pour restaurer les réserves énergétiques","La puissance maximale aérobie","Le déficit en O₂ lors du départ"],c:1,e:"L'EPOC (ou dette en oxygène) est la surconsommation d'oxygène après un effort intense, servant à reconstituer les stocks de PC, éliminer le lactate, restaurer les réserves de glycogène et abaisser la température corporelle."},
+  {d:"Entraînement",q:"Quel est le principal avantage de la filière anaérobie lactique par rapport à la filière aérobie ?",o:["Elle produit plus d'ATP total","Elle est plus rapide à produire de l'énergie","Elle ne fatigue pas","Elle utilise les graisses"],c:1,e:"La filière lactique est plus rapide que la filière aérobie pour produire de l'énergie. Elle prend le relais de l'alactique lors des efforts intenses de 8 secondes à ~1-2 minutes. Son inconvénient : l'accumulation de lactate."},
+  // ── AUTRES ENTRAÎNEMENT ────────────────────────────────────────────
+  {d:"Entraînement",q:"Qu'est-ce que la surcompensation ?",o:["Une fatigue accumulée irréversible","L'adaptation de l'organisme qui dépasse le niveau initial après une phase de récupération","Une augmentation de la charge d'entraînement","Un état de surentraînement"],c:1,e:"La surcompensation : après un stress (charge) et une récupération suffisante, l'organisme se reconstruit à un niveau supérieur à celui de départ. C'est le principe fondamental de l'adaptation à l'entraînement."},
+  {d:"Entraînement",q:"Dans une planification annuelle, dans quel ordre logique s'enchaînent les périodes ?",o:["Compétition → Prép. générale → Prép. spécifique → Transition","Prép. générale → Prép. spécifique → Compétition → Transition","Transition → Compétition → Prép. générale → Prép. spécifique","Prép. spécifique → Prép. générale → Transition → Compétition"],c:1,e:"Modèle Matveyev : Préparation générale → Préparation spécifique → Compétition → Transition (récupération active). C'est la logique de périodisation classique."},
+  {d:"Entraînement",q:"Le seuil anaérobie correspond à :",o:["La FC maximale théorique","L'intensité à partir de laquelle la production de lactate dépasse la capacité d'élimination","Le moment où les réserves de glycogène sont épuisées","La puissance maximale aérobie (PMA)"],c:1,e:"Le seuil anaérobie (SV2 / seuil lactique) : au-delà de cette intensité, l'acide lactique s'accumule plus vite qu'il n'est éliminé. Zone clé pour planifier les intensités d'entraînement en aviron."},
+  {d:"Entraînement",q:"La PMA (Puissance Maximale Aérobie) est :",o:["La puissance maximale produite en sprint alactique","La puissance à laquelle le VO2max est atteint","La puissance au seuil aérobie","La puissance moyenne soutenable sur 60 min"],c:1,e:"La PMA est la puissance minimale à laquelle le VO2max est atteint. Référence centrale pour la planification des intensités d'entraînement en aviron."},
+  {d:"Entraînement",q:"Vrai ou faux : le principe de spécificité indique que les adaptations sont spécifiques au type d'exercice réalisé.",o:["Vrai","Faux"],c:0,e:"Vrai. Les adaptations sont spécifiques à l'exercice pratiqué. La force développée en musculation ne se transfère pas automatiquement à la performance sur l'eau."},
+  {d:"Entraînement",q:"Qu'est-ce que la force maximale ?",o:["La force développée le plus rapidement possible","La tension maximale qu'un muscle peut développer lors d'une contraction volontaire","La capacité à répéter un effort sur longue durée","La force produite lors d'un étirement musculaire"],c:1,e:"La force maximale est la tension maximale qu'un muscle peut développer en contraction volontaire. Base sur laquelle s'appuient force explosive et endurance de force."},
+  {d:"Entraînement",q:"3 semaines de charge + 1 semaine de décharge. Ce schéma correspond à :",o:["Une planification par blocs","Un mésocycle de 4 semaines avec semaine de décharge","Un mésocycle de compétition","Une périodisation ondulante"],c:1,e:"3 semaines de charge + 1 de décharge = structure classique d'un mésocycle. La semaine de décharge permet la surcompensation."},
+  // ── RÉGLAGES BATEAUX ──────────────────────────────────────────────
+  {d:"Matériel",q:"Qu'appelle-t-on la 'hauteur de portant' en aviron ?",o:["La longueur du bras de portant","La distance verticale entre le plan d'eau et l'axe du tolet","La largeur du portant","L'angle d'inclinaison du portant"],c:1,e:"La hauteur de portant est la distance verticale entre la surface de l'eau et l'axe du tolet. Elle influence la position de travail du rameur : trop haute → effort vers le bas difficile ; trop basse → les poignées cognent les cuisses au décrochage."},
+  {d:"Matériel",q:"En scull, l'écartement (ou travail) désigne :",o:["La longueur interne de la pelle (côté poignée)","La distance entre les deux tolets, de centre à centre","La hauteur du portant","L'angle de la pale dans l'eau"],c:1,e:"L'écartement (spread en anglais) est la distance entre les deux tolets de centre à centre en scull. Un écartement standard est d'environ 160 cm. Il détermine l'angle de travail et le levier de la pelle."},
+  {d:"Matériel",q:"Qu'est-ce que le 'dévers' (ou inclinaison) du tolet ?",o:["L'inclinaison vers l'arrière du tolet qui aide la pale à s'immerger correctement","La hauteur du point d'appui","L'angle d'ouverture de la pale","Le décalage latéral du portant"],c:0,e:"Le dévers (pitch en anglais) est l'inclinaison vers l'arrière du tolet (généralement 4 à 6°). Il permet à la pale de plonger légèrement vers le fond lors du drive, assurant une meilleure prise d'eau et stabilisant la pale immergée."},
+  {d:"Matériel",q:"La 'butée de pied' (cale-pied) est :",o:["Le siège coulissant","La planche contre laquelle les pieds prennent appui, réglable en distance","Le talon de quille","L'amortisseur sous le siège"],c:1,e:"La butée de pied (footstretcher) est la planche réglable contre laquelle les pieds sont calés via des chaussures fixées. Sa position détermine l'amplitude de compression des jambes et l'angle de travail du bassin."},
+  {d:"Matériel",q:"Le siège coulissant se déplace sur :",o:["Des courroies en caoutchouc","Des rails (coulisses) fixés dans le bateau","Des coussins amortisseurs","Des roues libres suspendues"],c:1,e:"Le siège coulissant (sliding seat) roule sur des rails métalliques fixés dans la coque via des roulettes. Les rails permettent le déplacement complet du rameur pour utiliser la poussée des jambes."},
+  {d:"Matériel",q:"En aviron, la 'partie interne' d'une pelle (entre la poignée et le tolet) s'appelle :",o:["La pale","La partie externe","La partie interne (inboard)","Le manche"],c:2,e:"La partie interne (inboard) est la longueur de pelle entre la poignée et le tolet (point d'appui). Elle constitue le bras de levier intérieur. La partie externe (outboard) va du tolet à la pale — c'est le bras de levier moteur."},
+  {d:"Matériel",q:"Augmenter la longueur de la partie interne (inboard) d'une pelle a pour effet principal de :",o:["Augmenter l'effort à fournir pour chaque coup","Alléger le coup de pelle (réduction du bras de levier extérieur relatif)","Allonger la nage","Augmenter la vitesse de pointe"],c:1,e:"Augmenter l'inboard revient à rapprocher le tolet de la poignée, ce qui réduit le bras de levier extérieur relatif et allège le coup — la pale est plus facile à tirer mais génère moins de propulsion par coup."},
+  {d:"Matériel",q:"Qu'appelle-t-on le 'débattement' du siège coulissant ?",o:["La hauteur du siège par rapport au fond du bateau","L'amplitude de déplacement du siège sur les rails","La vitesse de déplacement du siège","Le poids du siège"],c:1,e:"Le débattement est l'amplitude totale de déplacement du siège coulissant sur les rails. Il est lié à la longueur des cuisses du rameur et conditionne l'amplitude de la poussée des jambes pendant le drive."},
+  {d:"Matériel",q:"Qu'est-ce qu'un bateau de type 'scull' ?",o:["Chaque rameur tient une seule pelle","Chaque rameur tient deux pelles (une par main)","Un bateau avec gouvernail uniquement","Un bateau réservé à la mer"],c:1,e:"En scull (nage en couple), chaque rameur manie deux pelles (une de chaque côté). En pointe (nage en couple), chaque rameur n'a qu'une seule pelle. Exemples scull : 1x, 2x, 4x. Exemples pointe : 2-, 4-, 8+."},
+  {d:"Matériel",q:"Entretien essentiel après une sortie en eau salée ou chargée :",o:["Poncer la coque","Rincer le bateau et les pelles à l'eau douce","Regraisser tous les roulements","Vérifier l'alignement des portants"],c:1,e:"Rincer immédiatement à l'eau douce évite la corrosion des pièces métalliques (portants, tolets, coulisses, roulements) et l'abrasion des rails et sièges par les particules en suspension."},
+  // ── ENVIRONNEMENT INSTITUTIONNEL ──────────────────────────────────
+  {d:"Environnement institutionnel",q:"Quelle est la structure hiérarchique du mouvement sportif français ?",o:["Ministère → Ligues → Clubs → Fédération","Fédération nationale → Ligues régionales → Comités départementaux → Clubs","Clubs → Comités → Fédération → Ministère","CNOSF → DRAJES → Clubs → Fédération"],c:1,e:"Organisation pyramidale : Fédération nationale (FFA) → Ligues régionales → Comités départementaux → Clubs affiliés."},
+  {d:"Environnement institutionnel",q:"Quel organisme représente le mouvement olympique en France ?",o:["Le Ministère des Sports","Le CNOSF","La FFA","Le CREPS"],c:1,e:"Le CNOSF (Comité National Olympique et Sportif Français) représente le mouvement sportif et olympique. Il regroupe les fédérations sportives olympiques et non olympiques."},
+  {d:"Environnement institutionnel",q:"À quelle catégorie appartient un rameur né en 2009 pour la saison 2025-2026 ?",o:["U15 (J14)","U17 (J16)","U19 (J18)","U23"],c:1,e:"Un rameur né en 2009 a 16 ans en 2025-2026 → catégorie U17 (J16). Les catégories FF Aviron sont basées sur l'âge atteint dans l'année civile."},
+  {d:"Environnement institutionnel",q:"Qu'est-ce que la DRAJES ?",o:["Direction régionale des associations sportives","Direction Régionale Académique à la Jeunesse, à l'Engagement et aux Sports","Un organisme de financement des clubs","L'instance disciplinaire fédérale régionale"],c:1,e:"La DRAJES est le service déconcentré de l'État chargé des politiques jeunesse et sport au niveau régional. Elle délivre notamment les diplômes JEPS."},
+  {d:"Environnement institutionnel",q:"Vrai ou faux : l'Entraîneur Fédéral peut encadrer à titre bénévole jusqu'au niveau national.",o:["Vrai","Faux"],c:0,e:"Vrai. Le diplôme EF FF Aviron permet d'encadrer en autonomie toute équipe jusqu'au niveau national, à titre bénévole. Pour une activité rémunérée, un diplôme d'État est requis."},
+  {d:"Environnement institutionnel",q:"Quel diplôme est requis pour encadrer l'aviron à titre professionnel ?",o:["L'Entraîneur Fédéral FF Aviron","Le CQP Moniteur d'Aviron ou un DEJEPS/DESJEPS","L'Éducateur Fédéral","Le BAFA option sport nautique"],c:1,e:"Pour encadrer contre rémunération à titre habituel, il faut un diplôme inscrit au RNCP : CQP Moniteur d'Aviron, DEJEPS ou DESJEPS mention Aviron."},
+  // ── PÉDAGOGIE ─────────────────────────────────────────────────────
+  {d:"Pédagogie",q:"Qu'est-ce qu'un objectif pédagogique opérationnel ?",o:["Un objectif général défini pour la saison","Un objectif observable, mesurable et atteignable lors d'une séance","La philosophie d'entraînement","La liste des exercices prévus"],c:1,e:"Un objectif opérationnel est SMART : Spécifique, Mesurable, Atteignable, Réaliste, Temporellement défini. Il décrit un comportement observable chez le rameur en fin de séance."},
+  {d:"Pédagogie",q:"La méthode analytique d'enseignement technique consiste à :",o:["Faire reproduire le geste global sans décomposition","Décomposer le geste en éléments travaillés individuellement","Laisser le rameur découvrir seul la technique","Observer un expert et imiter"],c:1,e:"La méthode analytique décompose le geste en sous-unités travaillées séparément (ex : finition seule, attaque seule, puis nage complète). Elle s'oppose à la méthode globale."},
+  {d:"Pédagogie",q:"Quel type de feedback est le plus adapté pour un rameur débutant ?",o:["Feedback différé et détaillé sur toutes les erreurs","Feedback immédiat et positif, centré sur un point clé","Aucun feedback pour ne pas perturber","Feedback écrit après la séance"],c:1,e:"Chez le débutant, un feedback immédiat, court et positif est plus efficace. Multiplier les corrections simultanées crée de la confusion. On cible un seul point clé à la fois."},
+  {d:"Pédagogie",q:"L'Entraîneur Fédéral est capable de :",o:["Encadrer uniquement des rameurs loisirs","Animer une équipe de cadres bénévoles et donner une dynamique à la structure","Décider seul de la politique sportive du club","Délivrer des licences FFA"],c:1,e:"Selon le référentiel, l'EF est capable d'animer une équipe de cadres bénévoles et de donner une dynamique à la structure. Compétence managériale clé."},
+  // ── TECHNIQUE ─────────────────────────────────────────────────────
+  {d:"Technique",q:"Dans quel ordre se succèdent les phases de la nage en aviron ?",o:["Drive → Attaque → Décrochage → Retour","Attaque → Drive → Décrochage → Retour","Retour → Décrochage → Attaque → Drive","Drive → Retour → Attaque → Décrochage"],c:1,e:"L'ordre correct (en termes français) : Attaque (entrée de pale) → Drive / Poussée (propulsion) → Décrochage (sortie de pale) → Retour (coulisse vers l'avant). L'attaque doit être vive et complète."},
+  {d:"Technique",q:"Lors de l'attaque, que doit faire le rameur en priorité ?",o:["Pousser des jambes immédiatement","Placer la pale rapidement et complètement dans l'eau avant de pousser","Tirer des bras pour initier le mouvement","Pencher le buste vers l'arrière"],c:1,e:"À l'attaque, la priorité est le placement rapide et complet de la pale dans l'eau avant tout autre mouvement. Une pale non immergée complètement entraîne une perte de propulsion et des projections d'eau."},
+  {d:"Technique",q:"La séquence de propulsion correcte pendant le drive est :",o:["Bras → Corps → Jambes","Jambes → Corps → Bras","Corps → Jambes → Bras","Bras → Jambes → Corps"],c:1,e:"Séquence : Jambes (~60%) → Corps/buste (~20%) → Bras (~20%). Inverser bras et jambes est l'erreur la plus fréquente chez les débutants."},
+  // ── SÉCURITÉ ──────────────────────────────────────────────────────
+  {d:"Sécurité",q:"En cas de chavirage, quelle est la première consigne ?",o:["Nager immédiatement vers la rive","Rester accroché au bateau et attendre les secours","Récupérer les pelles en priorité","Retourner le bateau seul le plus vite possible"],c:1,e:"Règle universelle : rester accroché au bateau (qui flotte et est visible). Le bateau chaviré est un radeau de survie. Nager vers la rive peut être dangereux selon les conditions."},
+  {d:"Sécurité",q:"Lors d'un stage hors de sa structure, l'Entraîneur Fédéral doit :",o:["Appliquer uniquement les règles de son club","Connaître et appliquer les règles de sécurité du plan d'eau utilisé","Déléguer la sécurité au club organisateur","Ne pas s'en occuper si des arbitres sont présents"],c:1,e:"L'EF est responsable de la sécurité en toutes circonstances. Il doit reconnaître le plan d'eau, identifier les risques spécifiques et appliquer les règles locales."},
+];
+const DOMAINES = [...new Set(ALL.map(q=>q.d))];
+
+// ── INDEXEDDB ──────────────────────────────────────────────────────────────
+let db = null;
+function openDB() {
+  return new Promise((res,rej)=>{
+    const req = indexedDB.open('qcm-aviron', 1);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if (!d.objectStoreNames.contains('stats')) d.createObjectStore('stats', {keyPath:'id'});
+    };
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror = () => rej();
+  });
+}
+function dbGet(id) {
+  return new Promise(res => {
+    if (!db) { res(null); return; }
+    const tx = db.transaction('stats','readonly');
+    const req = tx.objectStore('stats').get(id);
+    req.onsuccess = () => res(req.result || null);
+    req.onerror = () => res(null);
+  });
+}
+function dbSet(obj) {
+  if (!db) return;
+  const tx = db.transaction('stats','readwrite');
+  tx.objectStore('stats').put(obj);
+}
+function dbGetAll() {
+  return new Promise(res => {
+    if (!db) { res([]); return; }
+    const tx = db.transaction('stats','readonly');
+    const req = tx.objectStore('stats').getAll();
+    req.onsuccess = () => res(req.result || []);
+    req.onerror = () => res([]);
+  });
+}
+function dbClear() {
+  return new Promise(res => {
+    if (!db) { res(); return; }
+    const tx = db.transaction('stats','readwrite');
+    tx.objectStore('stats').clear();
+    tx.oncomplete = () => res();
+  });
+}
+
+// Question stats: {id, seen, correct, errors}
+let qStats = {}; // idx → {seen,correct,errors}
+
+async function loadStats() {
+  const all = await dbGetAll();
+  qStats = {};
+  all.forEach(s => { qStats[s.id] = s; });
+  // fallback localStorage
+  if (Object.keys(qStats).length === 0) {
+    const ls = localStorage.getItem('qcm-aviron-stats');
+    if (ls) try { const d=JSON.parse(ls); Object.keys(d).forEach(k=>{qStats[k]=d[k];}); } catch(e){}
+  }
+}
+
+async function saveQStat(idx, correct) {
+  const s = qStats[idx] || {id:idx, seen:0, correct:0, errors:0};
+  s.seen++;
+  if (correct) s.correct++; else s.errors++;
+  qStats[idx] = s;
+  dbSet({...s});
+  // backup localStorage
+  try { localStorage.setItem('qcm-aviron-stats', JSON.stringify(qStats)); } catch(e){}
+}
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let currentMode = null;
+let sessionQs = [];
+let current = 0;
+let sessionAnswers = {}; // idx → chosen
+let examTimer = null;
+let examRemaining = 0;
+let rushTimer = null;
+let rushRemaining = 0;
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── HOME ───────────────────────────────────────────────────────────────────
+async function renderHome() {
+  await loadStats();
+  const total = ALL.length;
+  const seen = Object.values(qStats).filter(s=>s.seen>0).length;
+  const allSeen = Object.values(qStats).filter(s=>s.seen>0);
+  const totalCorrect = allSeen.reduce((a,s)=>a+s.correct,0);
+  const totalSeen2 = allSeen.reduce((a,s)=>a+s.seen,0);
+  const globalPct = totalSeen2>0 ? Math.round(totalCorrect/totalSeen2*100) : 0;
+
+  document.getElementById('homeStats').innerHTML = `
+    <div class="stat-box">
+      <div class="stat-num" style="color:#0ea5e9">${seen}</div>
+      <div class="stat-lbl">VUES / ${total}</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" style="color:#10b981">${globalPct}%</div>
+      <div class="stat-lbl">RÉUSSITE</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" style="color:#8b5cf6">${Object.values(qStats).reduce((a,s)=>a+s.seen,0)}</div>
+      <div class="stat-lbl">RÉPONSES</div>
+    </div>
+  `;
+
+  const domEl = document.getElementById('domainSection');
+  domEl.innerHTML = '<div class="section-title">PROGRESSION PAR DOMAINE</div>';
+  DOMAINES.forEach(d => {
+    const qs = ALL.map((q,i)=>({...q,idx:i})).filter(q=>q.d===d);
+    const stats = qs.map(q=>qStats[q.idx]).filter(Boolean);
+    const correct = stats.reduce((a,s)=>a+s.correct,0);
+    const seen2 = stats.reduce((a,s)=>a+s.seen,0);
+    const pct = seen2>0 ? Math.round(correct/seen2*100) : 0;
+    domEl.innerHTML += `
+      <div class="domain-row">
+        <div class="domain-head">
+          <span class="domain-name" style="color:${COLORS[d]}">${d}</span>
+          <span class="domain-pct">${seen2>0?pct+'%':'—'}</span>
+        </div>
+        <div class="domain-bar"><div class="domain-fill" style="width:${pct}%;background:${COLORS[d]}"></div></div>
+      </div>`;
+  });
+}
+
+// ── START MODE ─────────────────────────────────────────────────────────────
+async function startMode(mode) {
+  await loadStats();
+  currentMode = mode;
+  sessionAnswers = {};
+  current = 0;
+
+  if (mode === 'adaptatif') {
+    // Weight by errors — questions with more errors appear more
+    const weighted = [];
+    ALL.forEach((q,i) => {
+      const s = qStats[i] || {errors:0, seen:0};
+      const w = 1 + (s.errors * 2) + (s.seen===0 ? 2 : 0);
+      for (let j=0; j<w; j++) weighted.push(i);
+    });
+    const picked = new Set();
+    const shuffled = weighted.sort(()=>Math.random()-0.5);
+    for (const i of shuffled) { if (picked.size>=10) break; picked.add(i); }
+    // Fallback if not enough
+    let pool = [...picked];
+    if (pool.length < 10) {
+      const rest = ALL.map((_,i)=>i).filter(i=>!picked.has(i)).sort(()=>Math.random()-0.5);
+      pool = [...pool, ...rest.slice(0, 10-pool.length)];
+    }
+    sessionQs = pool.map(i=>({...ALL[i],idx:i})).sort(()=>Math.random()-0.5);
+  } else if (mode === 'examen') {
+    // 30 questions, distributed by domain weight
+    const shuffled = ALL.map((q,i)=>({...q,idx:i})).sort(()=>Math.random()-0.5);
+    sessionQs = shuffled.slice(0, 30);
+    examRemaining = 30 * 60; // 30 min
+    startExamTimer();
+  } else if (mode === 'rush') {
+    const shuffled = ALL.map((q,i)=>({...q,idx:i})).sort(()=>Math.random()-0.5);
+    sessionQs = shuffled.slice(0, 5);
+  } else {
+    sessionQs = ALL.map((q,i)=>({...q,idx:i})).sort(()=>Math.random()-0.5);
+  }
+
+  showScreen('quizScreen');
+  renderQuiz();
+}
+
+// ── EXAM TIMER ─────────────────────────────────────────────────────────────
+function startExamTimer() {
+  clearInterval(examTimer);
+  updateTimerDisplay();
+  examTimer = setInterval(()=>{
+    examRemaining--;
+    updateTimerDisplay();
+    if (examRemaining<=0) { clearInterval(examTimer); forceEndSession(); }
+  },1000);
+}
+function updateTimerDisplay() {
+  const el = document.getElementById('timerDisplay');
+  if (!el) return;
+  const m = Math.floor(examRemaining/60);
+  const s = examRemaining%60;
+  const txt = m+':'+(s<10?'0':'')+s;
+  let cls = 'timer-box';
+  if (examRemaining<300) cls+=' warn';
+  if (examRemaining<60) cls+=' danger';
+  el.innerHTML = `<div class="${cls}">⏱ ${txt}</div>`;
+}
+function stopTimers() {
+  clearInterval(examTimer);
+  clearInterval(rushTimer);
+  const rushBar = document.getElementById('rushTimerBar');
+  if (rushBar) rushBar.style.display='none';
+}
+
+// ── RUSH TIMER ─────────────────────────────────────────────────────────────
+function startRushTimer() {
+  rushRemaining = 20;
+  const bar = document.getElementById('rushTimerBar');
+  const fill = document.getElementById('rushFill');
+  if (bar) bar.style.display='block';
+  if (fill) { fill.style.width='100%'; fill.style.background=COLORS[sessionQs[current]?.d]||'#0ea5e9'; }
+  clearInterval(rushTimer);
+  rushTimer = setInterval(()=>{
+    rushRemaining--;
+    const pct = (rushRemaining/20)*100;
+    if (fill) fill.style.width=pct+'%';
+    if (rushRemaining<=0) { clearInterval(rushTimer); autoAnswerRush(); }
+  },1000);
+}
+function autoAnswerRush() {
+  const q = sessionQs[current];
+  if (!q || sessionAnswers[q.idx]!==undefined) return;
+  sessionAnswers[q.idx] = -1; // -1 = timeout (wrong)
+  saveQStat(q.idx, false);
+  renderQuiz();
+}
+
+// ── RENDER QUIZ ─────────────────────────────────────────────────────────────
+function renderQuiz() {
+  if (current >= sessionQs.length) { endSession(); return; }
+  const q = sessionQs[current];
+  const userAnswer = sessionAnswers[q.idx];
+  const isAnswered = userAnswer !== undefined;
+
+  // Progress
+  const pct = ((current+(isAnswered?1:0))/sessionQs.length)*100;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressFill').style.background=COLORS[q.d];
+  document.getElementById('quizInfo').textContent=`Question ${current+1} / ${sessionQs.length}`;
+
+  // Timer display
+  const timerEl = document.getElementById('timerDisplay');
+  if (currentMode==='examen') { updateTimerDisplay(); }
+  else if (currentMode==='rush' && !isAnswered) { timerEl.innerHTML=''; }
+  else { timerEl.innerHTML=''; }
+
+  // Rush timer bar
+  if (currentMode==='rush' && !isAnswered) startRushTimer();
+  else if (isAnswered) { clearInterval(rushTimer); const b=document.getElementById('rushTimerBar'); if(b)b.style.display='none'; }
+
+  const optionsHTML = q.o.map((opt,i)=>{
+    let cls = 'option';
+    let mark = '';
+    if (isAnswered) {
+      if (i===q.c) { cls+=' correct'; mark='<span class="mark">✓</span>'; }
+      else if (i===userAnswer) { cls+=' wrong'; mark='<span class="mark">✗</span>'; }
+      else cls+=' disabled';
+    }
+    return `<button class="${cls}" onclick="answer(${i})" ${isAnswered?'disabled':''}>
+      <span class="letter">${String.fromCharCode(65+i)}</span>
+      <span style="flex:1">${opt}</span>${mark}
+    </button>`;
+  }).join('');
+
+  const timeoutMsg = (userAnswer===-1) ? `<div style="color:#f59e0b;font-size:13px;margin-bottom:8px;font-weight:600">⏱ Temps écoulé !</div>` : '';
+  const explHTML = isAnswered ? `<div class="expl"><div class="expl-label">EXPLICATION</div>${q.e}</div>` : '';
+  const nextBtn = isAnswered ? `<button class="btn-next" onclick="nextQ()">${current<sessionQs.length-1?'Suivante →':'Voir les résultats →'}</button>` : '';
+  const quitBtn = `<button class="btn-quit" onclick="quitSession()">Abandonner</button>`;
+
+  document.getElementById('quizCard').innerHTML = `
+    <span class="badge" style="background:${COLORS[q.d]}18;color:${COLORS[q.d]}">${q.d}</span>
+    <div class="qnum">${currentMode==='adaptatif'?'Mode Adaptatif · ':currentMode==='examen'?'Mode Examen · ':currentMode==='rush'?'Mode Rush · ':''}Question ${current+1}/${sessionQs.length}</div>
+    <div class="question">${q.q}</div>
+    <div class="options">${optionsHTML}</div>
+    ${timeoutMsg}${explHTML}${nextBtn}${!isAnswered?quitBtn:''}
+  `;
+}
+
+async function answer(i) {
+  const q = sessionQs[current];
+  if (sessionAnswers[q.idx]!==undefined) return;
+  clearInterval(rushTimer);
+  sessionAnswers[q.idx] = i;
+  await saveQStat(q.idx, i===q.c);
+  renderQuiz();
+}
+
+function nextQ() {
+  if (current < sessionQs.length-1) { current++; renderQuiz(); }
+  else endSession();
+}
+
+function forceEndSession() { endSession(); }
+function quitSession() { stopTimers(); showScreen('homeScreen'); renderHome(); }
+
+// ── END SESSION ─────────────────────────────────────────────────────────────
+async function endSession() {
+  stopTimers();
+  await loadStats();
+  const answered = sessionQs.filter(q=>sessionAnswers[q.idx]!==undefined);
+  const correct = answered.filter(q=>sessionAnswers[q.idx]===q.c).length;
+  const total = sessionQs.length;
+  const score = answered.length>0 ? Math.round(correct/answered.length*100) : 0;
+  const wrong = sessionQs.filter(q=>sessionAnswers[q.idx]!==undefined && sessionAnswers[q.idx]!==q.c);
+  const color = score>=80?'#16a34a':score>=60?'#f59e0b':'#dc2626';
+  const msg = score>=80?'🎯 Excellent !':score>=60?'👍 Bien, continue !':'📚 À réviser';
+
+  // Domain breakdown
+  let domHTML = '<div class="section-title">PAR DOMAINE</div>';
+  DOMAINES.forEach(d=>{
+    const dqs = sessionQs.filter(q=>q.d===d);
+    if (dqs.length===0) return;
+    const dc = dqs.filter(q=>sessionAnswers[q.idx]===q.c).length;
+    const pct = Math.round(dc/dqs.length*100);
+    domHTML += `<div class="domain-row">
+      <div class="domain-head"><span class="domain-name" style="color:${COLORS[d]}">${d}</span><span class="domain-pct">${dc}/${dqs.length} · ${pct}%</span></div>
+      <div class="domain-bar"><div class="domain-fill" style="width:${pct}%;background:${COLORS[d]}"></div></div>
+    </div>`;
+  });
+
+  const wrongHTML = wrong.length>0?`
+    <div class="wrong-section">
+      <div class="wrong-label">QUESTIONS RATÉES (${wrong.length})</div>
+      ${wrong.map(fq=>`<div class="wrong-item" style="border-color:${COLORS[fq.d]}">
+        <div class="wdom" style="color:${COLORS[fq.d]}">${fq.d}</div>
+        <div class="wq">${fq.q}</div>
+        <div class="wans">✓ ${fq.o[fq.c]}</div>
+        <div class="wexpl">${fq.e}</div>
+      </div>`).join('')}
+    </div>`:'';
+
+  document.getElementById('resultsContent').innerHTML = `
+    <div class="results-domains card" style="margin-bottom:14px">
+      <div class="results-hero">
+        <div class="results-score" style="color:${color}">${score}%</div>
+        <div class="results-sub">${correct} / ${answered.length} correctes</div>
+        <div class="results-msg">${msg}</div>
+      </div>
+      ${domHTML}
+    </div>
+    ${wrongHTML}
+    <button class="btn-home" onclick="goHome()">← Accueil</button>
+    <button class="btn-again" onclick="startMode('${currentMode}')">🔄 Recommencer ce mode</button>
+  `;
+  showScreen('resultsScreen');
+}
+
+async function goHome() { showScreen('homeScreen'); await renderHome(); }
+
+async function resetProgress() {
+  if (!confirm('Réinitialiser toute la progression ?')) return;
+  await dbClear();
+  localStorage.removeItem('qcm-aviron-stats');
+  qStats = {};
+  renderHome();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+openDB().then(()=>renderHome());
+</script>
+</body>
+</html>
